@@ -32,24 +32,23 @@ IntelliPrep is a modern web application designed to help job seekers practice an
 
 ---
 
-## 🧭 Folder Structure
+## Project Structure
 
-ai_interview_prep/\
-├── app/ → App routes (Next.js routing)\
-├── components/ → Reusable UI components\
-├── constants/ → Constants and shared values\
-├── firebase/\
-│ ├── admin.ts → Firebase Admin SDK setup\
-│ └── client.ts → Firebase Client SDK setup\
-├── lib/ → Core logic (auth actions, utils)\
-├── public/ → Static files\
-├── types/ → Type definitions (e.g., User)\
-├── .env.local → Environment variables\
-├── next.config.ts → Next.js config\
-└── README.md → You’re reading it :)\
-
-
----
+```plaintext
+ai_interview_prep/
+├── app/                  → App routes (Next.js routing)
+├── components/           → Reusable UI components
+├── constants/            → Constants and shared values
+├── firebase/
+│   ├── admin.ts          → Firebase Admin SDK setup
+│   └── client.ts         → Firebase Client SDK setup
+├── lib/                  → Core logic (auth actions, utils)
+├── public/               → Static files
+├── types/                → Type definitions (e.g., User)
+├── .env.local            → Environment variables
+├── next.config.ts        → Next.js configuration
+└── README.md             → You’re reading it :)
+```
 
 ## Auth Flow Diagram
 
