@@ -10,10 +10,10 @@ const Page = () => {
         <>
             <section className="card-cta">
                 <div className="flex flex-col max-w-lg gap-5">
-                    <h2>
+                    <h2 className='font-bold text-5xl'>
                         Turn Interviews Into Offers—with the Right Prep
                     </h2>
-                    <p>
+                    <p className='text-xl'>
                         Felt like the perfect fit, but couldn’t express it right? Let’s make sure your next interview tells your real story.
                     </p>
 
@@ -21,7 +21,7 @@ const Page = () => {
                         <Link href="/interview"> Start an interview </Link>
                     </Button>
                 </div>
-                <Image src="/robot.png" alt="robot" width={450} height={450} className="max-md:hidden"/>
+                <Image src="/robo.png" alt="robot" width={400} height={400} className="max-md:hidden"/>
             </section>
 
             <section className="flex flex-col gap-6 mt-5">
