@@ -57,7 +57,7 @@ const Agent = ({userName}: AgentProps) => {
                 {callStatus !== "ACTIVE" ?
                     (
                         <button className="relative btn-call">
-                            <span className={cn('absolute animate-ping rounded-full opacity-65', callStatus != 'CONNECTING' & 'hidden')}/>
+                            <span className={cn('absolute animate-ping rounded-full opacity-65', callStatus !== 'CONNECTING' & 'hidden')}/>
 
                             <span>
                                 {callStatus ===  'INACTIVE' || callStatus === 'FINISHED' ? 'Call' : '...'}
