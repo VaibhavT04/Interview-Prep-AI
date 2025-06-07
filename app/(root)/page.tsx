@@ -4,8 +4,17 @@ import Link from "next/link";
 import Image from "next/image";
 import {dummyInterviews} from "@/constants";
 import InterviewCard from "@/components/InterviewCard";
+import {getCurrentUser, getInterviewsByUserId} from "@/lib/actions/auth.action";
 
-const Page = () => {
+const Page = async () => {
+
+    const user = await getCurrentUser()
+    const userInterviews = await getInterviewsByUserId(user?.id!)
+
+    const hasPastInterviews = userInterviews?.length > 0
+
+
+
     return (
         <>
             <section className="card-cta">
@@ -24,14 +33,17 @@ const Page = () => {
                 <Image src="/robo.png" alt="robot" width={400} height={400} className="max-md:hidden"/>
             </section>
 
+
             <section className="flex flex-col gap-6 mt-5">
                 <h2> Your Interviews</h2>
-                <div className="interviews-section">
-                    {dummyInterviews.map((interview) => (
-                        <InterviewCard {...interview} key={interview.id}/>
-                    ))}
 
-                    <p> You havent taken any interviews yet</p>
+                <div className="interviews-section">
+                    {hasPastInterviews ? (
+                        userInterviews?.map((interview) => (
+                            <InterviewCard {...interview} key={interview.id}/>
+                        ))) :  (
+                            <p> You haven't taken any interviews yet</p>
+                        )}
                 </div>
             </section>
 
