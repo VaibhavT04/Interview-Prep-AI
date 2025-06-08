@@ -5,7 +5,7 @@ import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import DisplayTechLogos from "@/components/DisplayTechLogos";
 
-const InterviewCard = ({ interviewId, userId,
+const InterviewCard = ({ id, userId,
     techstack, type, createdAt, role }:InterviewCardProps) => {
 
     const feedback = null as Feedback | null
@@ -51,8 +51,8 @@ const InterviewCard = ({ interviewId, userId,
 
                     <Button className="btn-primary">
                         <Link href={feedback
-                        ? `/interview/${interviewId}/feedback`
-                        : `/app/(root)/interview/${interviewId}`}>
+                        ? `/interview/${id}/feedback`
+                        : `/interview/${id}`}>
                             {feedback ? 'Check feedback' : 'Take Interview'}
                         </Link>
 
