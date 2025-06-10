@@ -72,7 +72,7 @@ export async function createFeedback( params : CreateFeedbackParams){
         - **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
         `,
             system:
-                "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
+                "You are a professional interviewer with years of experience, analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
         })
 
         const feedback = await db.collection('feedback').add({
