@@ -1,8 +1,8 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { useForm } from "react-hook-form"               //form state management
+import { z } from "zod"                                 //validation
 import Image from "next/image"
 import Link from "next/link"
 import {toast} from "sonner"
