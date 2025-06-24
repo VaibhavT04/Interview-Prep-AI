@@ -15,21 +15,21 @@ import {auth} from "@/firebase/client";
 import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import {signIn, signUp} from "@/lib/actions/auth.action";
 
-
+// Dynamic schema for form type (sign-in / sign-up)
 const authFormSchema = ( type: FormType ) => {
     return z.object({
-        name: type === 'sign-up' ? z.string().min(3) : z.string(),
+        name: type === 'sign-up' ? z.string().min(3) : z.string(), // Name required only for sign-up
         email : z.string().email(),
         password: z.string().min(4),
     })
 }
-
 
 const AuthForm = ( { type } : { type : FormType }) => {
 
     const router = useRouter()
     const formSchema = authFormSchema(type)
 
+    // React Hook Form via Zod from Documentation
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -39,10 +39,12 @@ const AuthForm = ( { type } : { type : FormType }) => {
         },
     })
 
+    // Authentication logic
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try{
             if( type === "sign-up" ) {
-
+                
+                // Create user with Firebase auth, then store in Firestore by calling signUp
                 const { name, email, password } = values
 
                 const userCredentials = await createUserWithEmailAndPassword(auth, email, password)
@@ -62,7 +64,8 @@ const AuthForm = ( { type } : { type : FormType }) => {
                 toast.success("Account was successfully created. You can now sign in. ")
                 router.push("/sign-in")
             } else {
-                //Sign-in case
+
+                // Authenticate with Firebase & session cookie
                 const { email, password } = values
 
                 const userCredentials = await signInWithEmailAndPassword(auth, email, password)
@@ -89,7 +92,6 @@ const AuthForm = ( { type } : { type : FormType }) => {
     }
 
     const isSignIn = type === "sign-in"
-
 
     return (
         <div className="card-border lg:min-w-[450px]">
