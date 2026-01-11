@@ -7,7 +7,6 @@ import Image from "next/image"
 import Link from "next/link"
 import {toast} from "sonner"
 import {useRouter} from "next/navigation";
-
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import FormField from "@/components/FormField";
@@ -15,10 +14,10 @@ import {auth} from "@/firebase/client";
 import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import {signIn, signUp} from "@/lib/actions/auth.action";
 
-// Dynamic schema for form type (sign-in / sign-up)
+// Dynamic schema for form type (sign-in/sign-up)
 const authFormSchema = ( type: FormType ) => {
     return z.object({
-        name: type === 'sign-up' ? z.string().min(3) : z.string(), // Name required only for sign-up
+        name: type === 'sign-up' ? z.string().min(3) : z.string(), //Name required only for sign-up
         email : z.string().email(),
         password: z.string().min(4),
     })
