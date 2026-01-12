@@ -26,11 +26,25 @@ const Agent = ({userName, userId, type, interviewId, questions}: AgentProps) => 
     const [isSpeaking, setIsSpeaking] = useState(false)
     const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE)
     const [messages, setMessages] = useState<SavedMessage[]>([])
+    const [isRedirecting, setIsRedirecting] = useState(false)
     // const [lastMessage, setLastMessage] = useState<string>("");
 
     useEffect(() => {
         const onCallStart = () => setCallStatus(CallStatus.ACTIVE)
-        const onCallEnd = () => setCallStatus(CallStatus.FINISHED)
+        const onCallEnd = (detail?: any) => {
+            // Log the detail object so we can differentiate a normal end from an ejection/error.
+            console.log('vapi call-end detail:', detail)
+            setCallStatus(CallStatus.FINISHED)
+
+            // If this is the workflow-driven generate flow, perform a safe redirect to home.
+            // Use a short timeout and a redirect flag so we can suppress expected ejection messages that may arrive immediately after hangup.
+            if (type === 'generate') {
+                setTimeout(() => {
+                    setIsRedirecting(true)
+                    router.push('/')
+                }, 200)
+            }
+        }
 
         const onMessage = ( message : Message) => {
             if(message.type === 'transcript' && message.transcriptType === 'final'){
@@ -43,7 +57,17 @@ const Agent = ({userName, userId, type, interviewId, questions}: AgentProps) => 
         const onSpeechStart = () => setIsSpeaking(true)
         const onSpeechEnd = () => setIsSpeaking(false)
 
-        const onError = (error: Error) => console.error('Error', error);
+        const onError = (error: any) => {
+            const msg = error?.message ?? String(error)
+            const isEjection = /eject|ejection|meeting has ended/i.test(msg)
+            // If we're redirecting after a successful finish or we're already finished and the message indicates an ejection,
+            // suppress the error to avoid showing the red Next.js overlay for expected post-hangup messages.
+            if (isRedirecting || (callStatus === CallStatus.FINISHED && isEjection)) {
+                console.log('Suppressed vapi error during finish/redirect:', msg)
+                return
+            }
+            console.error('vapi error', error)
+        }
 
         vapi.on('call-start', onCallStart)
         vapi.on('call-end', onCallEnd)
@@ -61,7 +85,7 @@ const Agent = ({userName, userId, type, interviewId, questions}: AgentProps) => 
             vapi.off('error', onError)
         }
 
-    }, [])
+    }, [callStatus, isRedirecting, type, router]);
 
 
         const handleGenerateFeedback = async ( messages: SavedMessage[])=>  {
@@ -84,8 +108,10 @@ const Agent = ({userName, userId, type, interviewId, questions}: AgentProps) => 
 
     useEffect(() => {
         if(callStatus === CallStatus.FINISHED) {
-            if( type === 'generate'){
-                router.push('/')
+            if (type === 'generate') {
+                // Workflow-driven flows can persist feedback and finish successfully on the server.
+                // Avoid forcing a redirect to home on normal completion (which caused the "Meeting ended due to ejection" navigation).
+                console.log('Call finished in generate mode — staying on page.')
             } else {
                 handleGenerateFeedback(messages)
             }

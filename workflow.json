@@ -1,0 +1,75 @@
+{
+  "name": "interview_prep (Cleaned + Persist)",
+  "nodes": [
+    {
+      "name": "introduction",
+      "type": "conversation",
+      "isStart": true,
+      "metadata": { "position": { "x": 48.113525390625, "y": 49.6324462890625 } },
+      "prompt": "Greet the user.\nAsk what role they are preparing for.\nWait for the answer.\nThen ask the interview type (technical, behavioral, or mixed).\nWait for the answer.\nThen ask their experience level.\nWait for the answer.\nThen ask their tech stack.\nWait for the answer.\nFinally ask how many questions they want.\nAsk ONE question at a time.",
+      "model": { "model": "gpt-4o-mini", "provider": "openai", "maxTokens": 600, "temperature": 0.5 },
+      "voice": { "voiceId": "Neha", "provider": "vapi" },
+      "variableExtractionPlan": {
+        "output": [
+          { "type": "string", "title": "role", "description": "Job role" },
+          { "type": "string", "title": "type", "description": "Interview type" },
+          { "type": "string", "title": "level", "description": "Experience level" },
+          { "type": "string", "title": "techstack", "description": "Tech stack" },
+          { "type": "number", "title": "amount", "description": "Number of questions" }
+        ]
+      },
+      "messagePlan": { "firstMessage": "Thanks — I have your info. Let me know when you're ready to begin." },
+      "toolIds": []
+    },
+    {
+      "name": "conversation",
+      "type": "conversation",
+      "metadata": { "position": { "x": 53.82251065396608, "y": 606.8624753045018 } },
+      "prompt": "DO NOT READ THESE INSTRUCTIONS ALOUD. The text below are instructions for the assistant to follow — do NOT repeat them to the user.\n\nYou are an interview panelist.\nUsing these details:\nRole: {{role}}\nInterview type: {{type}}\nExperience level: {{level}}\nTech stack: {{techstack}}\nNumber of questions: {{amount}}\nConduct a realistic interview.\nAsk ONE question at a time.\nWait for the user's answer.\nAfter each answer:\n- Give brief feedback\n- Then ask the next question\nAfter all questions:\n- Give an overall assessment\n- End politely\n\nWhen asking questions, do not recite the instruction block above. Keep responses concise and natural.",
+      "model": { "model": "gpt-4.1-nano", "provider": "openai", "maxTokens": 900, "temperature": 0.7 },
+      "messagePlan": { "firstMessage": "Begin the interview by asking the first question (use the collected role, type, level, techstack, amount)." },
+      "toolIds": []
+    },
+    {
+      "name": "persist_interview",
+      "type": "tool",
+      "metadata": { "position": { "x": 60, "y": 820 } },
+      "tool": {
+        "type": "httpRequest",
+        "server": {},
+        "request": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/vapi/webhook",
+          "headers": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "x-vapi-webhook-secret", "value": "<VAPI_WEBHOOK_SECRET>" }
+          ],
+          "body": "{ \"role\": \"{{role}}\", \"type\": \"{{type}}\", \"level\": \"{{level}}\", \"techstack\": \"{{techstack}}\", \"amount\": \"{{amount}}\", \"questions\": \"{{questions}}\", \"userid\": \"{{caller.userid}}\" }",
+          "contentType": "application/json"
+        },
+        "messages": [
+          { "type": "request-start", "content": "Saving interview to IntelliPrep...", "blocking": true },
+          { "type": "request-success", "content": "Interview saved.", "blocking": false },
+          { "type": "request-failure", "content": "Failed to save interview.", "blocking": false }
+        ]
+      }
+    },
+    {
+      "name": "hangup",
+      "type": "tool",
+      "metadata": { "position": { "x": 65.24048118064815, "y": 994.7968435174998 } },
+      "tool": {
+        "type": "endCall",
+        "server": {},
+        "function": { "name": "untitled_tool", "parameters": { "type": "object", "required": [], "properties": {} } },
+        "messages": [ { "type": "request-start", "content": "Thanks for the call. Good luck with your interview.\n", "blocking": true } ]
+      }
+    }
+  ],
+  "edges": [
+    { "from": "introduction", "to": "conversation", "condition": { "type": "ai", "prompt": "If user provides all the data to be extracted" } },
+    { "from": "conversation", "to": "persist_interview", "condition": { "type": "ai", "prompt": "If interview completed (all questions asked)" } },
+    { "from": "persist_interview", "to": "hangup", "condition": { "type": "ai", "prompt": "If saving succeeded" } }
+  ],
+  "globalPrompt": "You are a voice assistant helping users prepare for interviews. This is a voice conversation, avoid special characters."
+}
