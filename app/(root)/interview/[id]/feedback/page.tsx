@@ -12,14 +12,46 @@ const Page = async ( {params}: RouteParams) => {
     const { id } = await params
     const user = await getCurrentUser()
 
+    // Require authentication to view feedback — redirect to sign-in if not logged in
+    if(!user) redirect('/sign-in')
+
     const interview = await getInterviewById(id)
 
     if(!interview) redirect('/')
 
     const feedback = await getFeedbackByInterviewId({
         interviewId: id,
-        userId: user?.id!
+        userId: user.id
     })
+
+    // If there's no feedback for this interview and user, show a friendly message
+    if(!feedback) {
+        return (
+            <section className="section-feedback">
+                <div className="flex flex-row justify-center">
+                    <h1 className="text-4xl font-semibold">Feedback not found</h1>
+                </div>
+
+                <div className="flex flex-col gap-4 mt-6 items-center">
+                    <p className="text-muted-foreground">It looks like feedback hasn't been created for this interview yet.</p>
+
+                    <div className="buttons">
+                        <Button className="btn-secondary flex-1">
+                            <Link href="/" className="flex w-full justify-center">
+                                <p className="text-sm font-semibold text-primary-200 text-center">Back to dashboard</p>
+                            </Link>
+                        </Button>
+
+                        <Button className="btn-primary flex-1">
+                            <Link href={`/interview/${id}`} className="flex w-full justify-center">
+                                <p className="text-sm font-semibold text-black text-center">Retake Interview</p>
+                            </Link>
+                        </Button>
+                    </div>
+                </div>
+            </section>
+        )
+    }
 
     return (
         <section className="section-feedback">
